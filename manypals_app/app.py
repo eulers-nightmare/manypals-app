@@ -10,6 +10,7 @@ MEDIA_PATH = Path(__file__).parent / "media_store"
 MEDIA_PATH.mkdir(exist_ok=True)
 
 import uuid
+from otp_utils import generate_otp, send_otp
 
 # Initialize
 Path("uploads").mkdir(exist_ok=True)
@@ -37,17 +38,38 @@ if choice == "Register":
             st.error(msg)
 
 elif choice == "Login":
-    st.subheader("Login")
-    email = st.text_input("Email")
+    st.subheader("Login with OTP Verification")
+
+    email = st.text_input("University Email")
     password = st.text_input("Password", type="password")
 
-    if st.button("Login"):
+    if "otp_sent" not in st.session_state:
+        st.session_state.otp_sent = False
+    if "generated_otp" not in st.session_state:
+        st.session_state.generated_otp = None
+
+    if st.button("Send OTP"):
         user = login_user(email, password)
         if user:
-            st.session_state.user = user
-            st.success("Logged in")
+            otp = generate_otp()
+            st.session_state.generated_otp = otp
+            send_otp(email, otp)
+            st.session_state.otp_sent = True
+            st.success(f"OTP sent to {email}")
         else:
             st.error("Invalid credentials")
+
+    if st.session_state.otp_sent:
+        entered_otp = st.text_input("Enter the 6-digit OTP")
+
+        if st.button("Verify OTP"):
+            if entered_otp == st.session_state.generated_otp:
+                st.session_state.user = login_user(email, password)
+                st.success("OTP verified. Logged in successfully.")
+                st.session_state.otp_sent = False
+            else:
+                st.error("Incorrect OTP. Try again.")
+
 
 if st.session_state.user:
     st.sidebar.success(f"Logged in as {st.session_state.user[1]}")
