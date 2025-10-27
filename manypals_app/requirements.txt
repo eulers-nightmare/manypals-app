@@ -1,0 +1,4 @@
+streamlit
+bcrypt
+sqlite3-binary
+pathlib
