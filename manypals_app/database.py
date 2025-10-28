@@ -29,13 +29,17 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS groups (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
-        created_by INTEGER
+        created_by INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP      
     )''')
 
     c.execute('''CREATE TABLE IF NOT EXISTS group_members (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         group_id INTEGER,
         user_id INTEGER,
-        PRIMARY KEY (group_id, user_id)
+        joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (group_id) REFERENCES groups(id),
+        FOREIGN KEY (user_id) REFERENCES users(id)            
     )''')
 
     c.execute('''CREATE TABLE IF NOT EXISTS posts (
@@ -45,6 +49,26 @@ def init_db():
         caption TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )''')
+
+    c.execute('''CREATE TABLE IF NOT EXISTS group_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        group_id INTEGER,
+        user_id INTEGER,
+        message TEXT,
+        created_at TIMESTAMP
+    )''')
+
+    # Group messages table
+    c.execute('''CREATE TABLE IF NOT EXISTS group_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        group_id INTEGER,
+        user_id INTEGER,
+        message TEXT,
+        created_at TEXT,
+        FOREIGN KEY(group_id) REFERENCES groups(id),
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )''')
+
 
     conn.commit()
     conn.close()

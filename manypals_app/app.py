@@ -96,7 +96,7 @@ if st.session_state.user:
             conn = get_connection()
             c = conn.cursor()
             c.execute("INSERT INTO posts (user_id, image_path, caption) VALUES (?, ?, ?)",
-                      (st.session_state.user[0], path, caption))
+                      (st.session_state.user[0], str(path), caption))
             conn.commit()
             conn.close()
             st.success("Posted!")
